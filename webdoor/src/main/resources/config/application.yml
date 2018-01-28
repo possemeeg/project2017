@@ -1,0 +1,13 @@
+---
+spring:
+    hazelcast:
+        config: classpath:config/hazelcast-client.xml
+application:
+    dynamic:
+        file: classpath:filewithlines.txt
+    auth:
+        users: classpath:config/users.json
+
+
+
+
