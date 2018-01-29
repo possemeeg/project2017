@@ -1,0 +1,16 @@
+---
+
+- template:
+    src: "{{item}}"
+    dest: "{{install.dir}}/config/{{item}}"
+    owner: "{{user.name}}"
+  with_items:
+      - hazelcast.xml
+      - application.yml
+
+- name: start command
+  shell: nohup {{install.dir}}/start.sh >/dev/null </dev/null 2>&1 &
+  args:
+      chdir: "{{install.dir}}"
+  become: yes
+  become_user: "{{user.name}}"

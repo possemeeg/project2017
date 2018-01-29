@@ -1,0 +1,15 @@
+---
+- hosts: webdoor
+  vars:
+      install:
+          dir: /opt/possemeeg
+      source:
+          dir: ../../webdoor
+          version: 1.0-SNAPSHOT
+      p2017:
+          service: webdoor
+      user:
+          name: p2017w
+  roles:
+    - role: possemeeg.p2017webdoor
+      become: yes

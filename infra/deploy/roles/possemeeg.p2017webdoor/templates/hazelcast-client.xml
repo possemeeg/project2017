@@ -5,8 +5,15 @@
     xmlns="http://www.hazelcast.com/schema/client-config">
 
     <network>
-        <connection-attempt-limit>9</connection-attempt-limit>
+        <connection-timeout>2000</connection-timeout>
+        <connection-attempt-limit>5</connection-attempt-limit>
+        <cluster-members>
+            {% for ipend in range(16) %}
+            <address>10.0.10.{{ipend}}</address>
+            {% endfor %}
+        </cluster-members>
     </network>
 </hazelcast-client>
+
 
 

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+      install:
+          dir: /opt/possemeeg
+  tasks:
+  - name: stop
+    shell: "{{install.dir}}/stop.sh || /bin/true"
+  - name: remove
+    file: path={{install.dir}} state=absent
+
+
+

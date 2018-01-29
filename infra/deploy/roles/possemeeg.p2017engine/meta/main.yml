@@ -1,0 +1,3 @@
+---
+dependencies:
+    - {role: possemeeg.p2017base}

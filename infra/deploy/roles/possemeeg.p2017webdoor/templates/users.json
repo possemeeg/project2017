@@ -1,0 +1,14 @@
+[
+  {
+    "user": "user",
+    "password": "{noop}password",
+    "role": "user"
+  },
+  {
+    "user": "dev",
+    "password": "{noop}dev",
+    "role": "admin"
+  }
+  
+]
+

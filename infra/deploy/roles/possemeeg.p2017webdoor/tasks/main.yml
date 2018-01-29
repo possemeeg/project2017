@@ -1,0 +1,29 @@
+---
+
+- template:
+    src: "{{item}}"
+    dest: "{{install.dir}}/config/{{item}}"
+    owner: "{{user.name}}"
+  with_items:
+      - hazelcast-client.xml
+      - application.yml
+      - users.json
+
+- file:
+    path: "{{install.dir}}/html"
+    state: directory
+    owner: "{{user.name}}"
+
+- copy:
+    src: "{{source.dir}}/src/main/resources/static/"
+    dest: "{{install.dir}}/html/"
+    owner: "{{user.name}}"
+
+
+- name: start command
+  shell: nohup {{install.dir}}/start.sh >/dev/null </dev/null 2>&1 &
+  args:
+      chdir: "{{install.dir}}"
+  become: yes
+  become_user: "{{user.name}}"
+

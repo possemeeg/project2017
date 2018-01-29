@@ -1,0 +1,8 @@
+---
+spring:
+    hazelcast:
+        config: file:config/hazelcast.xml
+
+logging:
+    file: {{install.dir}}/log/engine.log
+

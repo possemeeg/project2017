@@ -1,0 +1,21 @@
+---
+spring:
+    hazelcast:
+        config: file:config/hazelcast-client.xml
+
+server:
+    port: 8080
+
+logging:
+    file: {{install.dir}}/log/webdoor.log
+
+application:
+    dynamic:
+        file: classpath:filewithlines.txt
+    auth:
+        users: file:config/users.json
+
+
+
+
+

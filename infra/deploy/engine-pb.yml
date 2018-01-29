@@ -1,0 +1,15 @@
+---
+- hosts: engine
+  vars:
+      install:
+          dir: /opt/possemeeg
+      source:
+          dir: ../../engine
+          version: 1.0-SNAPSHOT
+      p2017:
+          service: engine
+      user:
+          name: p2017
+  roles:
+    - role: possemeeg.p2017engine
+      become: yes

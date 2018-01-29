@@ -1,0 +1,59 @@
+---
+- yum:
+    name: java
+    state: present
+    update_cache: yes
+
+- user:
+    name: "{{user.name}}"
+
+- file:
+    path: "{{item}}"
+    state: directory
+    owner: "{{user.name}}"
+  with_items:
+    - "{{install.dir}}/lib"
+    - "{{install.dir}}/config"
+
+- file:
+    path: "{{install.dir}}/log"
+    state: directory
+    owner: "{{user.name}}"
+    mode: 0777
+
+- copy:
+    src: "{{source.dir}}/target/{{p2017.service}}-{{source.version}}.jar"
+    dest:  "{{install.dir}}/lib"
+    owner: "{{user.name}}"
+
+- copy:
+    dest: "{{install.dir}}/{{p2017.service}}-meta.md"
+    mode: 0600
+    content: |
+        # Information
+        - ans host: {{ansible_hostname}}
+        - inv host: {{inventory_hostname}}
+
+- copy:
+    dest: "{{install.dir}}/start.sh"
+    mode: 0755
+    owner: "{{user.name}}"
+    content: |
+        #!/bin/bash
+        # file created by ansible
+        java -jar {{install.dir}}/lib/{{p2017.service}}-{{source.version}}.jar
+
+- copy:
+    dest: "{{install.dir}}/stop.sh"
+    mode: 0755
+    owner: "{{user.name}}"
+    content: |
+        #!/bin/bash
+        # file created by ansible
+        # and a little bit dodgy
+        ps -ef |grep -E 'java.*{{p2017.service}}-{{source.version}}.jar' |grep -v grep |awk '{print $2}' |xargs sudo kill
+
+- name: stop command
+  shell: "{{install.dir}}/stop.sh || /bin/true"
+
+
