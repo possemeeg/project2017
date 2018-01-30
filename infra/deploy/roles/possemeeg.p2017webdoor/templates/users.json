@@ -1,14 +1,48 @@
 [
   {
     "user": "user",
-    "password": "{noop}password",
+    "password": "{noop}user",
     "role": "user"
   },
   {
     "user": "dev",
     "password": "{noop}dev",
     "role": "admin"
+  },
+  {
+    "user": "molly",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "mell",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "jona",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "tabs",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "pete",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "val",
+    "password": "{noop}pwd",
+    "role": "user"
+  },
+  {
+    "user": "tone",
+    "password": "{noop}pwd",
+    "role": "user"
   }
-  
 ]
 

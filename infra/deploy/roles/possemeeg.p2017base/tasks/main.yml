@@ -4,6 +4,17 @@
     state: present
     update_cache: yes
 
+#- yum:
+#    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#    state: present
+#
+#- yum:
+#    name: python-pip
+#    state: present
+#
+#- pip:
+#    name: boto3
+
 - user:
     name: "{{user.name}}"
 
