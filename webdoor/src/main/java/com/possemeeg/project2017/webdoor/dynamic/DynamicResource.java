@@ -54,11 +54,6 @@ public class DynamicResource {
     return line;
   }
 
-  public void dyingNow() {
-    System.out.println("ahhhhhhhhhhhggg");
-  }
-
-
   @Override
   public String toString() {
     return String.format("DynamicResource %d", id);

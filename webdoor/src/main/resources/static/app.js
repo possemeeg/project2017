@@ -18,13 +18,13 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/app/general.greetings', function (greeting) {
+        stompClient.subscribe('/app/topic/global-messages', function (greeting) {
             messages = JSON.parse(greeting.body);
             for (var i = 0; i < messages.length; i++) {
                 showGreeting(messages[i]);
             }
         });
-        stompClient.subscribe('/user/topic/personal-greetings', function (greeting) {
+        stompClient.subscribe('/user/topic/personal-messages', function (greeting) {
             message = JSON.parse(greeting.body);
             showGreeting(message);
         });
@@ -53,7 +53,7 @@ function showGreeting(message) {
 
 
 function sendMessage(message, to) {
-    stompClient.send("/app/hello", {}, JSON.stringify({'message': message, 'recipient': to}));
+    stompClient.send("/app/send-message", {}, JSON.stringify({'message': message, 'recipient': to}));
 }
 
 $(function () {

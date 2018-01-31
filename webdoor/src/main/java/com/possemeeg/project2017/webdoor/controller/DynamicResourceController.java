@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
-public class HelloController {
+public class DynamicResourceController {
   private final ApplicationContext applicationContext;
   private final HazelcastInstance hazelcastInstance;
 
-  public HelloController(@Autowired ApplicationContext applicationContext, @Autowired HazelcastInstance hazelcastInstance) {
+  public DynamicResourceController(@Autowired ApplicationContext applicationContext, @Autowired HazelcastInstance hazelcastInstance) {
     this.applicationContext = applicationContext;
     this.hazelcastInstance = hazelcastInstance;
   }

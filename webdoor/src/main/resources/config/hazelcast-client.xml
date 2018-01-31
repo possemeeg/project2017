@@ -5,7 +5,16 @@
     xmlns="http://www.hazelcast.com/schema/client-config">
 
     <network>
-        <connection-attempt-limit>9</connection-attempt-limit>
+        <!--connection-timeout>2000</connection-timeout>
+        <connection-attempt-limit>5</connection-attempt-limit>
+        <cluster-members>
+            <address>10.0.10.{{ipend}}</address>
+            <address>34.249.183.94</address>
+            <address>34.249.255.137</address>
+            <address>52.214.244.147</address>
+            <address>34.244.134.220</address>
+            <address>54.194.235.245</address>
+        </cluster-members-->
     </network>
 </hazelcast-client>
 

@@ -2,23 +2,23 @@ package com.possemeeg.project2017.webdoor.model;
 
 import com.possemeeg.project2017.shared.model.Message;
 
-public class Greeting {
+public class MessageToUser {
 
   private String id;
   private String message;
   private String user;
 
-  public Greeting() {
+  public MessageToUser() {
   }
 
-  public Greeting(String id, String message, String user) {
+  public MessageToUser(String id, String message, String user) {
     this.id = id;
     this.message = message;
     this.user = user;
   }
 
-  public static Greeting fromMessage(Message message) {
-    return new Greeting("id", message.getMessage(), message.getSender());
+  public static MessageToUser fromMessage(Message message) {
+    return new MessageToUser("id", message.getMessage(), message.getSender());
   }
 
   public String getId() {
