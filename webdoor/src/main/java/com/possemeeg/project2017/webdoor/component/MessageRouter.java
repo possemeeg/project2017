@@ -1,10 +1,8 @@
 package com.possemeeg.project2017.webdoor.component;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
+import com.hazelcast.core.*;
 import com.possemeeg.project2017.shared.model.Message;
+import com.possemeeg.project2017.shared.reference.MessageMapNames;
 import com.possemeeg.project2017.webdoor.model.MessageToUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +16,22 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Component
 public class MessageRouter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageRouter.class);
-    //private final IList<Message> messages;
-    //private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ProcessContext processContext;
+    private final ISet<LoggedOnUser> loggedOnUsers;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public MessageRouter(HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate) {
+    public MessageRouter(ProcessContext processContext, HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate) {
+        this.processContext = processContext;
+        loggedOnUsers = hazelcastInstance.getSet(MessageMapNames.LOGGED_ON_USERS);
+        loggedOnUsers.addItemListener(new ItemListener<String>() {
+            @Override
+            public void itemAdded(ItemEvent<Message> var1) {
+            }
+            @Override
+            public void itemRemoved(ItemEvent<Message> var1) {
+            }
+        }, true);
         //messages = hazelcastInstance.getList(Names.MESSAGES);
         //this.simpMessagingTemplate = simpMessagingTemplate;
 
@@ -52,10 +61,12 @@ public class MessageRouter {
     @EventListener
     public void onSessionConnectedEvent(SessionConnectedEvent event) {
         LOGGER.info("User connected");
+        loggedOnUsers.add(new LoggedOnUser(event.getUser().getName(), processContext));
     }
 
     @EventListener
     public void onSessionDisconnectEvent(SessionDisconnectEvent event) {
         LOGGER.info("User disconnected");
+        loggedOnUsers.remove(new LoggedOnUser(event.getUser().getName(), processContext));
     }
 }

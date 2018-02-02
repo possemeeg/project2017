@@ -42,6 +42,10 @@ public class MessagingController {
     //  String user = principal.getName();
     //  return messages.stream().filter(message -> message.isForUser(user)).map(MessageToUser::fromMessage).collect(Collectors.toList());
     //}
+    @SubscribeMapping("/topic/logger-on-users")
+    public Collection<MessageToUser> userSubscribedGlobal(Principal principal) {
+        return messageExchange.getUserMessages(principal.getName());
+    }
     @SubscribeMapping("/topic/global-messages")
     public Collection<MessageToUser> userSubscribedGlobal(Principal principal) {
         return messageExchange.getUserMessages(principal.getName());
