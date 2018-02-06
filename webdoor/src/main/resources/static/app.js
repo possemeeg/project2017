@@ -18,6 +18,10 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
+        stompClient.subscribe('/app/general.users', function (userupdate) {
+            userchanges = JSON.parse(userupdate.body);
+            showUsers(userchanges);
+        });
         stompClient.subscribe('/app/general.greetings', function (greeting) {
             messages = JSON.parse(greeting.body);
             for (var i = 0; i < messages.length; i++) {
@@ -51,6 +55,22 @@ function showGreeting(message) {
         + message.user + "')\">Respond</button></td></tr>").prependTo("#greetings");
 }
 
+function onlinetext(userchange) {
+    if (userchange.online) {
+        return "- online"
+    } else {
+        return "- offline"
+    }
+}
+
+function showUsers(userchanges) {
+    for (var i = 0; i < userchanges.length; i++) {
+        $("<tr><td>"
+            + userchanges[i].user
+            + onlinetext(userchanges[i])
+            + "</td></tr>").prependTo("#users");
+    }
+}
 
 function sendMessage(message, to) {
     stompClient.send("/app/hello", {}, JSON.stringify({'message': message, 'recipient': to}));

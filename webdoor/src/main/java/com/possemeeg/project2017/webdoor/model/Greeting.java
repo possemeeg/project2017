@@ -4,32 +4,32 @@ import com.possemeeg.project2017.shared.model.Message;
 
 public class Greeting {
 
-  private String id;
-  private String message;
-  private String user;
+    private String id;
+    private String message;
+    private String user;
 
-  public Greeting() {
-  }
+    public Greeting() {
+    }
 
-  public Greeting(String id, String message, String user) {
-    this.id = id;
-    this.message = message;
-    this.user = user;
-  }
+    public Greeting(String id, String message, String user) {
+        this.id = id;
+        this.message = message;
+        this.user = user;
+    }
 
-  public static Greeting fromMessage(Message message) {
-    return new Greeting("id", message.getMessage(), message.getSender());
-  }
+    public static Greeting fromMessage(Message message) {
+        return new Greeting("id", message.getMessage(), message.getSender());
+    }
 
-  public String getId() {
-    return id;
-  }
+    public String getId() {
+        return id;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 }

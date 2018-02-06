@@ -14,51 +14,72 @@
                 enabled. Please enable
                 Javascript and reload this page!</h2></noscript>
         <div id="main-content" class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <form class="form-inline">
-                        <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Message</th>
-                                <th>To</th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                            <tr>
-                                <td>
-                                    <input type="text" id="name" class="form-control" placeholder="Something...">
-                                </td>
-                                <td>
-                                    <input type="text" id="to" class="form-control" placeholder="Black for all...">
-                                </td>
-                                <td>
-                                    <button id="send" class="btn btn-default" type="submit">Send</button>
-                                </td>
-                                <td>
-                                    <button id="logout" class="btn btn-default" onclick="window.location='/exit'">Logout</button>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <table id="conversation" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Message</th>
-                                <th>From</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="greetings">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <table>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form class="form-inline">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Message</th>
+                                                <th>To</th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tr>
+                                            <td>
+                                                <input type="text" id="name" class="form-control" placeholder="Something...">
+                                            </td>
+                                            <td>
+                                                <input type="text" id="to" class="form-control" placeholder="Black for all...">
+                                            </td>
+                                            <td>
+                                                <button id="send" class="btn btn-default" type="submit">Send</button>
+                                            </td>
+                                            <td>
+                                                <button id="logout" class="btn btn-default" onclick="window.location='/exit'">Logout</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="conversation" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Message</th>
+                                            <th>From</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="greetings">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="user-list" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </body>
 </html>
