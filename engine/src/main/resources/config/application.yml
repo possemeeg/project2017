@@ -1,4 +1,7 @@
 ---
+server:
+    port: 8081
+
 spring:
     hazelcast:
         config: classpath:config/hazelcast.xml

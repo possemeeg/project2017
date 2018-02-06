@@ -11,4 +11,3 @@ public class RequestListener {
     this.hazelcastInstance = hazelcastInstance;
   }
 }
-

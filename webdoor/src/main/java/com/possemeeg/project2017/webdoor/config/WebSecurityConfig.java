@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -29,29 +30,37 @@ import java.util.List;
 @EnableConfigurationProperties({AuthProperties.class})
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                //.antMatchers("/", "/home", "/index.html").permitAll()
-                .anyRequest().authenticated()
-                .and()
+            //.antMatchers("/", "/home", "/index.html").permitAll()
+            .anyRequest().authenticated();
+        http
             .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
+            .loginPage("/login")
+            .permitAll();
+        http
             .logout()
-                .permitAll();
-      //http
-      //  .authorizeRequests()
-      //  .anyRequest().authenticated()
-      //  .and()
-      //  .formLogin()
-      //  .loginPage("/login")
-      //  .permitAll()
-      //  .and()
-      //  .logout()
-      //  .permitAll();
+            .permitAll();
+        http
+            .sessionManagement()
+            .maximumSessions(100)
+            .sessionRegistry(sessionRegistry);
+            //http
+            //  .authorizeRequests()
+            //  .anyRequest().authenticated()
+            //  .and()
+            //  .formLogin()
+            //  .loginPage("/login")
+            //  .permitAll()
+            //  .and()
+            //  .logout()
+            //  .permitAll();
     }
 
     @Autowired
