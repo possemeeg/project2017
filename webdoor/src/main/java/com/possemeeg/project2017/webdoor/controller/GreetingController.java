@@ -21,6 +21,7 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -42,8 +43,8 @@ public class GreetingController {
     messages.add(newMessage);
   }
 
-  @SubscribeMapping("/general.greetings")
-  public Collection<Greeting> userSubscribed(Principal principal) {
+  @SubscribeMapping("/personal.greetings")
+  public Collection<Greeting> userUserSubscribed(Principal principal) {
     String user = principal.getName();
     return messages.stream().filter(message -> message.isForUser(user)).map(Greeting::fromMessage).collect(Collectors.toList());
   }

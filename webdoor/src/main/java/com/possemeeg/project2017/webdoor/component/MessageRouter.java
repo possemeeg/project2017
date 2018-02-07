@@ -25,25 +25,24 @@ import java.util.stream.Collectors;
 public class MessageRouter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageRouter.class);
     private final IList<Message> messages;
+    private final DecoratedUserMap userMap;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public MessageRouter(HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate) {
-        messages = hazelcastInstance.getList(Names.MESSAGES);
+    public MessageRouter(HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate, DecoratedUserMap userMap) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.messages = hazelcastInstance.getList(Names.MESSAGES);
+        this.userMap = userMap;
 
         messages.addItemListener(new ItemListener<Message>() {
             @Override
             public void itemAdded(ItemEvent<Message> var1) {
                 LOGGER.info("Item added to {}: {}", Names.MESSAGES, var1.getItem());
                 Message newMessage = var1.getItem();
-                if (newMessage.isForAll()) {
-                    simpMessagingTemplate.convertAndSend("/app/general.greetings",
-                            new Greeting[] {new Greeting("id", newMessage.getMessage(), newMessage.getSender())});
-                } else {
-                    for (String user : newMessage.getRecipients()) {
-                        simpMessagingTemplate.convertAndSendToUser(user, "/topic/personal-greetings",
-                                new Greeting("id", newMessage.getMessage(), newMessage.getSender()));
+                for (String user : userMap.loggedOnUsers()) {
+                    if (newMessage.isForUser(user)) {
+                        simpMessagingTemplate.convertAndSendToUser(user, "/personal.greetings",
+                                new Greeting[] {new Greeting("id", newMessage.getMessage(), newMessage.getSender())});
                     }
                 }
             }

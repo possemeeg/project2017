@@ -1,5 +1,6 @@
 package com.possemeeg.project2017.webdoor.controller;
 
+import com.google.common.collect.ImmutableList;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -8,6 +9,7 @@ import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.extractor.ValueCollector;
 import com.hazelcast.query.extractor.ValueExtractor;
+import com.possemeeg.project2017.webdoor.component.DecoratedUserMap;
 import com.possemeeg.project2017.webdoor.model.client.UserChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -35,14 +38,16 @@ public class UserListController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final IMap<String,MapSession> users;
+    private final DecoratedUserMap userMap;
     private final ValueExtractor<MapSession, String> principalNameExtractor;
     private final Updater online;
     private final Updater offline;
 
     @Autowired
-    public UserListController(SimpMessagingTemplate simpMessagingTemplate, HazelcastInstance hazelcastInstance) {
+    public UserListController(SimpMessagingTemplate simpMessagingTemplate, HazelcastInstance hazelcastInstance, DecoratedUserMap userMap) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.users = hazelcastInstance.getMap(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME);
+        this.userMap = userMap;
         this.principalNameExtractor = new PrincipalNameExtractor();
         this.users.addEntryListener(new UserEntryListener(), true);
         this.online = new Updater(true);
@@ -51,13 +56,7 @@ public class UserListController {
 
     @SubscribeMapping("/general.users")
     public Collection<UserChange> userSubscribed(Principal principal) {
-        Collector<MapSession, ChangeCollector, List<UserChange>>  col =
-            Collector.of(
-                    () -> new ChangeCollector(),
-                    (c,item) -> principalNameExtractor.extract(item, null, c),
-                    (c1,c2) -> c1.merge(c2),
-                    ChangeCollector::finish);
-        return users.values().stream().collect(col);
+        return userMap.loggedOnUsers(u -> new UserChange(u, true));
     }
 
     private class UserEntryListener implements MapListener, EntryAddedListener<String, MapSession>, EntryRemovedListener<String, MapSession> {
@@ -68,22 +67,6 @@ public class UserListController {
         @Override
         public void entryRemoved(EntryEvent<String, MapSession> entryEvent) {
             principalNameExtractor.extract(entryEvent.getOldValue(), null, offline);
-        }
-    }
-
-    private class ChangeCollector extends ValueCollector<String> {
-        final List<UserChange> list = new ArrayList<UserChange>();
-        @Override
-        public void addObject(String principalName) {
-            list.add(new UserChange(principalName, true));
-        }
-        
-        ChangeCollector merge(ChangeCollector other) {
-            list.addAll(other.list);
-            return this;
-        }
-        List<UserChange> finish() {
-            return list;
         }
     }
 

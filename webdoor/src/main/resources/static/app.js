@@ -19,18 +19,10 @@ function connect() {
         setConnected(true);
         console.log('Connected: ' + frame);
         stompClient.subscribe('/app/general.users', function (userupdate) {
-            userchanges = JSON.parse(userupdate.body);
-            showUsers(userchanges);
+            showUsers(JSON.parse(userupdate.body));
         });
-        stompClient.subscribe('/app/general.greetings', function (greeting) {
-            messages = JSON.parse(greeting.body);
-            for (var i = 0; i < messages.length; i++) {
-                showGreeting(messages[i]);
-            }
-        });
-        stompClient.subscribe('/user/topic/personal-greetings', function (greeting) {
-            message = JSON.parse(greeting.body);
-            showGreeting(message);
+        stompClient.subscribe('/user/personal.greetings', function (greeting) {
+            showGreetings(JSON.parse(greeting.body));
         });
     });
 }
@@ -45,6 +37,13 @@ function disconnect() {
 
 function sendName() {
     sendMessage($("#name").val(), $("#to").val())
+}
+
+
+function showGreetings(messages) {
+    for (var i = 0; i < messages.length; i++) {
+        showGreeting(messages[i]);
+    }
 }
 
 function showGreeting(message) {
