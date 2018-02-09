@@ -31,9 +31,6 @@ import java.util.List;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
 
-    @Autowired
-    private SessionRegistry sessionRegistry;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -47,20 +44,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .logout()
             .permitAll();
-        http
-            .sessionManagement()
-            .maximumSessions(100)
-            .sessionRegistry(sessionRegistry);
-            //http
-            //  .authorizeRequests()
-            //  .anyRequest().authenticated()
-            //  .and()
-            //  .formLogin()
-            //  .loginPage("/login")
-            //  .permitAll()
-            //  .and()
-            //  .logout()
-            //  .permitAll();
     }
 
     @Autowired
@@ -79,25 +62,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         inMemAuto.withUser(user.user).password(user.password).roles(user.role);
       }
     }
-    //@Bean
-    //SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
-    //    return http
-    //        // Demonstrate that method security works
-    //        // Best practice to use both for defense in depth
-    //        .authorizeExchange()
-    //        .anyExchange().authenticated()
-    //        .and()
-    //        .formLogin()
-    //        .loginPage("/login")
-    //        .and()
-    //        .build();
-    //}
-    //@Bean
-    //public MapReactiveUserDetailsService userDetailsRepository() {
-    //    User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
-    //    UserDetails rob = userBuilder.username("rob").password("{noop}rob").roles("USER").build();
-    //    UserDetails admin = userBuilder.username("admin").password("{noop}admin").roles("USER", "ADMIN").build();
-    //    return new MapReactiveUserDetailsService(rob, admin);
-    //}
 }
 

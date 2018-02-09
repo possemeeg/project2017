@@ -1,9 +1,9 @@
 package com.possemeeg.project2017.webdoor.component;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
+import com.hazelcast.core.*;
+import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.map.listener.EntryRemovedListener;
+import com.hazelcast.map.listener.MapListener;
 import com.possemeeg.project2017.shared.model.Message;
 import com.possemeeg.project2017.shared.reference.Names;
 import com.possemeeg.project2017.webdoor.model.Greeting;
@@ -18,49 +18,59 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
-import java.util.Collection;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Component
 public class MessageRouter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageRouter.class);
-    private final IList<Message> messages;
-    private final DecoratedUserMap userMap;
+    private final HazelcastInstance hazelcastInstance;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final Map<String,String> attachedUserMessages = new ConcurrentHashMap<>();
+    private final IMap<Long,Message> broadcasts;
 
     @Autowired
-    public MessageRouter(HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate, DecoratedUserMap userMap) {
+    public MessageRouter(HazelcastInstance hazelcastInstance, SimpMessagingTemplate simpMessagingTemplate) {
+        this.hazelcastInstance = hazelcastInstance;
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.messages = hazelcastInstance.getList(Names.MESSAGES);
-        this.userMap = userMap;
+        this.broadcasts = hazelcastInstance.getMap(Names.BROADCAST_MESSAGE_MAP);
 
-        messages.addItemListener(new ItemListener<Message>() {
-            @Override
-            public void itemAdded(ItemEvent<Message> var1) {
-                LOGGER.info("Item added to {}: {}", Names.MESSAGES, var1.getItem());
-                Message newMessage = var1.getItem();
-                for (String user : userMap.loggedOnUsers()) {
-                    if (newMessage.isForUser(user)) {
-                        simpMessagingTemplate.convertAndSendToUser(user, "/personal.greetings",
-                                new Greeting[] {new Greeting("id", newMessage.getMessage(), newMessage.getSender())});
-                    }
-                }
-            }
-
-            @Override
-            public void itemRemoved(ItemEvent<Message> var1) {
-                LOGGER.info("Item removed from {}: {}", Names.MESSAGES, var1.getItem());
-            }
-        }, true);
+        Consumer<Greeting[]> broadcastHandler =
+            msgs ->
+               attachedUserMessages.keySet().stream().forEach(user ->
+                       simpMessagingTemplate.convertAndSendToUser(user, "/personal.greetings", msgs));
+        broadcasts.addEntryListener(new MessageListener(broadcastHandler), true);
     }
 
     @EventListener
     public void onSessionConnectedEvent(SessionConnectedEvent event) {
-        LOGGER.info("User connected");
+        String user = event.getUser().getName(); 
+        LOGGER.info("User {} connected", user);
+        IMap<Long,Message> userMap = hazelcastInstance.getMap(Names.mapNameForUser(user));
+        MessageListener userMessageListener = new MessageListener(msgs -> simpMessagingTemplate.convertAndSendToUser(user, "/personal.greetings", msgs));
+        attachedUserMessages.put(user, userMap.addEntryListener(userMessageListener, true));
+    }
+
+    private class MessageListener implements MapListener, EntryAddedListener<Long,Message> {
+        Consumer<Greeting[]> handler;
+        MessageListener(Consumer<Greeting[]> handler) {
+            this.handler = handler;
+        }
+        @Override
+        public void entryAdded(EntryEvent<Long,Message> entryEvent) {
+            Message newMessage = entryEvent.getValue();
+            handler.accept(new Greeting[] {new Greeting(entryEvent.getKey(), newMessage.getMessage(), newMessage.getSender())});
+        }
     }
 
     @EventListener
     public void onSessionDisconnectEvent(SessionDisconnectEvent event) {
-        LOGGER.info("User disconnected");
+        String user = event.getUser().getName();
+        LOGGER.info("User {} disconnected", user);
+        IMap<Long,Message> userMap = hazelcastInstance.getMap(Names.mapNameForUser(user));
+        userMap.removeEntryListener(attachedUserMessages.remove(user));
+        ;
     }
 }

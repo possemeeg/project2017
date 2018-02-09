@@ -1,0 +1,36 @@
+---
+- yum:
+    name: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    state: present
+
+- yum:
+    name: mysql-server
+    state: present
+    update_cache: yes
+
+- systemd:
+    name: mysqld
+    state: started
+
+- yum:
+    name: MySQL-python
+    state: present
+
+- mysql_db:
+    name: '{{database.name}}'
+    state: present
+
+- mysql_user:
+    name:  '{{database.user.app.name}}'
+    host: '%'
+    password: '{{database.user.app.password}}'
+    priv: '{{database.name}}.*:SELECT,UPDATE'
+    priv: '*.*:ALL'
+    state: present
+
+- mysql_user:
+    name: '{{database.user.admin.name}}'
+    host: '%'
+    password:  '{{database.user.admin.password}}'
+    priv: '{{database.name}}.*:ALL'
+    state: present

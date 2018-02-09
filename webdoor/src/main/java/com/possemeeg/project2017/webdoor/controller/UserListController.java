@@ -79,7 +79,7 @@ public class UserListController {
 
         @Override
         public void addObject(String principalName) {
-            LOGGER.info("New item on {}: {}", HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME, principalName);
+            LOGGER.info("User on {}: {} - Online: {}", HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME, principalName, online);
             simpMessagingTemplate.convertAndSend("/app/general.users", new UserChange[] {new UserChange(principalName, online)});
         }
     }

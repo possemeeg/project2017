@@ -47,11 +47,13 @@ function showGreetings(messages) {
 }
 
 function showGreeting(message) {
-    $("<tr><td>"
-        + message.message + "</td><td>From: "
-        + message.user
-        + "</td><td><button class=\"btn btn-default\" onclick=\"sendMessage('ack', '"
-        + message.user + "')\">Respond</button></td></tr>").prependTo("#greetings");
+    $("<tr>"
+        + "<td>" + message.id + "</td>"
+        + "<td>" + message.message + "</td>"
+        + "<td>" + message.user + "</td>"
+        + "<td>" + "" + "</td>"
+        + "<td><button class=\"btn btn-default\" onclick=\"sendMessage('ack', '" + message.user + "')\">Respond</button></td>"
+        + "</tr>").prependTo("#greetings");
 }
 
 function onlinetext(userchange) {

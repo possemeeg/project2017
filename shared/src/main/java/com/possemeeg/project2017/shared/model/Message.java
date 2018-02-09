@@ -12,64 +12,71 @@ import java.util.List;
 
 public class Message implements DataSerializable {
 
-  private String message;
-  private String sender;
-  private List<String> recipients;
+    private long id;
+    private String message;
+    private String sender;
+    private List<String> recipients;
 
-  public Message() {
-  }
-  private Message(String message, String sender, List<String> recipients) {
-    this.message = message;
-    this.sender = sender;
-    this.recipients = recipients;
-  }
-  public static Message forUsers(String message, String sender, List<String> recipients) {
-    Preconditions.checkNotNull(message);
-    Preconditions.checkNotNull(sender);
-    Preconditions.checkNotNull(recipients);
-    Preconditions.checkArgument(!recipients.isEmpty());
-    return new Message(message, sender, ImmutableList.copyOf(recipients));
-  }
-  public static Message forUser(String message, String sender, String recipient) {
-    Preconditions.checkNotNull(message);
-    Preconditions.checkNotNull(sender);
-    Preconditions.checkNotNull(recipient);
-    return new Message(message, sender, ImmutableList.of(recipient));
-  }
-  public static Message forAll(String message, String sender) {
-    Preconditions.checkNotNull(message);
-    Preconditions.checkNotNull(sender);
-    return new Message(message, sender, Collections.<String>emptyList());
-  }
+    public Message() {
+    }
+    private Message(long id, String message, String sender, List<String> recipients) {
+        this.id = id;
+        this.message = message;
+        this.sender = sender;
+        this.recipients = recipients;
+    }
+    public static Message forUsers(long id, String message, String sender, List<String> recipients) {
+        Preconditions.checkNotNull(message);
+        Preconditions.checkNotNull(sender);
+        Preconditions.checkNotNull(recipients);
+        Preconditions.checkArgument(!recipients.isEmpty());
+        return new Message(id, message, sender, ImmutableList.copyOf(recipients));
+    }
+    public static Message forUser(long id, String message, String sender, String recipient) {
+        Preconditions.checkNotNull(message);
+        Preconditions.checkNotNull(sender);
+        Preconditions.checkNotNull(recipient);
+        return new Message(id, message, sender, ImmutableList.of(recipient));
+    }
+    public static Message forAll(long id, String message, String sender) {
+        Preconditions.checkNotNull(message);
+        Preconditions.checkNotNull(sender);
+        return new Message(id, message, sender, Collections.<String>emptyList());
+    }
 
-  public String getMessage() {
-    return message;
-  }
-  public String getSender() {
-    return sender;
-  }
-  public List<String> getRecipients() {
-    return recipients;
-  }
-  public boolean isForAll() {
-    return recipients.isEmpty();
-  }
-  public boolean isForUser(String user) {
-    return isForAll() || recipients.contains(user);
-  }
-  
-  @Override
-  public void writeData(ObjectDataOutput out) throws IOException {
-    out.writeUTF(message);
-    out.writeUTF(sender);
-    out.writeUTFArray(recipients.toArray(new String[recipients.size()]));
-  }
+    public long getId() {
+        return id;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public String getSender() {
+        return sender;
+    }
+    public List<String> getRecipients() {
+        return recipients;
+    }
+    public boolean isForAll() {
+        return recipients.isEmpty();
+    }
+    public boolean isForUser(String user) {
+        return isForAll() || recipients.contains(user);
+    }
 
-  @Override
-  public void readData(ObjectDataInput in) throws IOException {
-    message = in.readUTF();
-    sender = in.readUTF();
-    recipients = ImmutableList.copyOf(in.readUTFArray());
-  }
+    @Override
+    public void writeData(ObjectDataOutput out) throws IOException {
+        out.writeLong(id);
+        out.writeUTF(message);
+        out.writeUTF(sender);
+        out.writeUTFArray(recipients.toArray(new String[recipients.size()]));
+    }
+
+    @Override
+    public void readData(ObjectDataInput in) throws IOException {
+        id = in.readLong();
+        message = in.readUTF();
+        sender = in.readUTF();
+        recipients = ImmutableList.copyOf(in.readUTFArray());
+    }
 }
 

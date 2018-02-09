@@ -1,0 +1,6 @@
+---
+database:
+    hosts:
+        database1:
+            ansible_host: vag_db1
+

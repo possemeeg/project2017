@@ -1,0 +1,11 @@
+servers = [
+  {name:'database', ip:'192.168.1.20'}
+]
+servers.each_with_index do |box,index|
+  Vagrant.configure("2") do |config|
+      config.vm.define box[:name] do |config|
+        config.vm.box = "centos/7"
+        config.vm.network "public_network", ip: box[:ip]
+    end
+  end
+end

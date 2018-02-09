@@ -1,4 +1,6 @@
 ---
+server:
+    port: 8080
 spring:
     hazelcast:
         config: classpath:config/hazelcast-client.xml

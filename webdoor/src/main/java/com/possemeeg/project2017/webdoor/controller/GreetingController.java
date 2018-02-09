@@ -1,9 +1,6 @@
 package com.possemeeg.project2017.webdoor.controller;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
+import com.hazelcast.core.*;
 import com.possemeeg.project2017.shared.model.Message;
 import com.possemeeg.project2017.shared.reference.Names;
 import com.possemeeg.project2017.webdoor.model.Greeting;
@@ -24,28 +21,38 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class GreetingController {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GreetingController.class);
-  private final IList<Message> messages;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreetingController.class);
+    private final HazelcastInstance hazelcastInstance;
+    private final IMap<Long,Message> broadcasts;
+    private final IdGenerator messageIds;
 
-  @Autowired
-  public GreetingController(HazelcastInstance hazelcastInstance) {
-    messages = hazelcastInstance.getList(Names.MESSAGES);
-  }
+    @Autowired
+    public GreetingController(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
+        this.broadcasts = hazelcastInstance.getMap(Names.BROADCAST_MESSAGE_MAP);
+        this.messageIds = hazelcastInstance.getIdGenerator(Names.MESSAGE_ID_GENERATOR);
+    }
 
-  @MessageMapping("/hello")
-  public void greeting(HelloMessage message, Principal user) throws Exception {
-    Message newMessage = message.isForAll() ?
-      Message.forAll(message.getMessage(), user.getName()) :
-      Message.forUser(message.getMessage(), user.getName(), message.getRecipient());
-    messages.add(newMessage);
-  }
+    @MessageMapping("/hello")
+    public void greeting(HelloMessage message, Principal user) throws Exception {
+        long newMessageId = messageIds.newId();
+        if (message.isForAll()) {
+            broadcasts.put(newMessageId, Message.forAll(newMessageId, message.getMessage(), user.getName()));
+        } else {
+            IMap<Long,Message> userMap = hazelcastInstance.getMap(Names.mapNameForUser(message.getRecipient()));
+            userMap.put(newMessageId, Message.forUser(newMessageId, message.getMessage(), user.getName(), message.getRecipient()));
+        }
+    }
 
-  @SubscribeMapping("/personal.greetings")
-  public Collection<Greeting> userUserSubscribed(Principal principal) {
-    String user = principal.getName();
-    return messages.stream().filter(message -> message.isForUser(user)).map(Greeting::fromMessage).collect(Collectors.toList());
-  }
+    @SubscribeMapping("/personal.greetings")
+    public Collection<Greeting> userUserSubscribed(Principal principal) {
+        String user = principal.getName();
+        LOGGER.info("User subscribed for greetings {}", user);
+        IMap<Long,Message> userMap = hazelcastInstance.getMap(Names.mapNameForUser(user));
+        return Stream.concat(userMap.values().stream().filter(message -> message.isForUser(user)), broadcasts.values().stream()).map(Greeting::fromMessage).collect(Collectors.toList());
+    }
 }
