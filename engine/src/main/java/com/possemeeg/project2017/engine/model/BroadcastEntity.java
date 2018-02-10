@@ -11,11 +11,10 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 @Entity
 @Table(name = "broadcast")
-public class BroadcastEntity implements Serializable {
+public class BroadcastEntity {
     @Id
     @Column(name="message_id")
     private Long messageId;

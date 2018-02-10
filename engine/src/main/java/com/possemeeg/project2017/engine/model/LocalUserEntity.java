@@ -1,5 +1,7 @@
 package com.possemeeg.project2017.engine.model;
 
+import com.possemeeg.project2017.shared.model.User;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -10,10 +12,23 @@ public class LocalUserEntity {
     @Id
     private String username;
     private String name;
+    private String password;
 
-    public LocalUserEntity(String username, String name) {
+    public LocalUserEntity() {
+    }
+
+    public LocalUserEntity(String username, String name, String password) {
         this.username = username;
         this.name = name;
+        this.password = password;
+    }
+
+    public static LocalUserEntity valueOf(User user) {
+        return new LocalUserEntity(user.getUsername(), user.getName(), user.getPassword());
+    }
+
+    public User toUser() {
+        return new User(username, name, password);
     }
 
     public String getUsername() {

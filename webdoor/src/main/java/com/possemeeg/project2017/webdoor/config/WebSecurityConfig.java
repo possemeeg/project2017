@@ -1,6 +1,9 @@
 package com.possemeeg.project2017.webdoor.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.possemeeg.project2017.shared.reference.Names;
 import com.possemeeg.project2017.webdoor.config.properties.AuthProperties;
 import com.possemeeg.project2017.webdoor.model.User;
 import org.slf4j.Logger;
@@ -47,20 +50,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth, AuthProperties authProperties) throws Exception {
-      List<User> users = User.listFromResource(authProperties.getUsers());
-      if (users.isEmpty()) {
-        LOGGER.warn("No users configured");
-        return;
-      }
+    public void configureGlobal(AuthenticationManagerBuilder auth, AuthProperties authProperties, HazelcastInstance hazelcastInstance) throws Exception {
+        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-      PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemAuto =
+            auth.inMemoryAuthentication().passwordEncoder(passwordEncoder);
 
-      InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemAuto =
-      auth.inMemoryAuthentication().passwordEncoder(passwordEncoder);
-      for (User user : users) {
-        inMemAuto.withUser(user.user).password(user.password).roles(user.role);
-      }
+        IMap<String, com.possemeeg.project2017.shared.model.User> userMap = hazelcastInstance.getMap(Names.USER_MAP);
+        for (com.possemeeg.project2017.shared.model.User user : userMap.values()) {
+                inMemAuto.withUser(user.getUsername()).password(user.getPassword()).roles("user");
+        }
+
+        List<User> users = User.listFromResource(authProperties.getUsers());
+        for (User user : users) {
+            if (!userMap.containsKey(user.user)) {
+                inMemAuto.withUser(user.user).password(user.password).roles(user.role);
+            }
+        }
     }
+
 }
 
