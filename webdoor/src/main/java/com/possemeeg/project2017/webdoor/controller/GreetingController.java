@@ -28,18 +28,18 @@ public class GreetingController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingController.class);
     private final HazelcastInstance hazelcastInstance;
     private final IMap<Long,Message> broadcasts;
-    private final IdGenerator messageIds;
+    private final IAtomicLong nextId;
 
     @Autowired
     public GreetingController(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
         this.broadcasts = hazelcastInstance.getMap(Names.BROADCAST_MESSAGE_MAP);
-        this.messageIds = hazelcastInstance.getIdGenerator(Names.MESSAGE_ID_GENERATOR);
+        this.nextId = hazelcastInstance.getAtomicLong(Names.MESSAGE_ID_GENERATOR);
     }
 
     @MessageMapping("/hello")
     public void greeting(HelloMessage message, Principal user) throws Exception {
-        long newMessageId = messageIds.newId();
+        long newMessageId = nextId.incrementAndGet();
         if (message.isForAll()) {
             broadcasts.put(newMessageId, Message.forAll(newMessageId, message.getMessage(), user.getName()));
         } else {
@@ -53,6 +53,6 @@ public class GreetingController {
         String user = principal.getName();
         LOGGER.info("User subscribed for greetings {}", user);
         IMap<Long,Message> userMap = hazelcastInstance.getMap(Names.mapNameForUser(user));
-        return Stream.concat(userMap.values().stream().filter(message -> message.isForUser(user)), broadcasts.values().stream()).map(Greeting::fromMessage).collect(Collectors.toList());
+        return Stream.concat(userMap.values().stream(), broadcasts.values().stream()).map(Greeting::fromMessage).collect(Collectors.toList());
     }
 }

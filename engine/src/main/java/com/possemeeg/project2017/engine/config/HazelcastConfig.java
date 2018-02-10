@@ -1,13 +1,12 @@
 package com.possemeeg.project2017.engine.config;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.MapAttributeConfig;
-import com.hazelcast.config.MapIndexConfig;
-import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
+import com.possemeeg.project2017.engine.data.MessageRepository;
+import com.possemeeg.project2017.engine.haz.BroadcastStore;
 import com.possemeeg.project2017.engine.haz.MessageStore;
 import com.possemeeg.project2017.shared.model.Message;
 import com.possemeeg.project2017.shared.reference.Names;
@@ -45,14 +44,24 @@ public class HazelcastConfig {
           .addMapIndexConfig(new MapIndexConfig(
                       HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
 
-      //config.getMapConfig(Names.USER_MESSAGE_MAP_PREFIX + "dev")
-      //    .getMapStoreConfig()
-      //    .setFactoryImplementation(new MapStoreFactory<Long,Message>() {
-      //        @Override
-      //        public MapStore<Long,Message> newMapStore(String mapName, Properties properties) {
-      //            return applicationContext.getBean(MessageStore.class, mapName);
-      //        }
-      //    });
+      MapConfig mapConfig = config.getMapConfig(Names.MESSAGE_MAP_PREFIX + "*");
+      mapConfig.getMapStoreConfig()
+          .setEnabled(true)
+          .setWriteDelaySeconds(10)
+          .setWriteBatchSize(1000)
+          .setWriteCoalescing(true)
+          .setFactoryImplementation(new MapStoreFactory<Long,Message>() {
+              @Override
+              public MapStore<Long,Message> newMapStore(String mapName, Properties properties) {
+                  if (Names.BROADCAST_MESSAGE_MAP.equals(mapName)) {
+                      return applicationContext.getBean(BroadcastStore.class);
+                  } else {
+                      MessageStore store = applicationContext.getBean(MessageStore.class);
+                      store.setUser(Names.userFromMapName(mapName));
+                      return store;
+                  }
+              }
+          });
 
       return Hazelcast.newHazelcastInstance(config);
   }

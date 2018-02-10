@@ -5,4 +5,10 @@ server:
 spring:
     hazelcast:
         config: classpath:config/hazelcast.xml
-
+    jpa:
+        hibernate:
+            ddl-auto: none
+    datasource:
+        url: jdbc:mysql://192.168.1.20:3306/project2017?autoreconnect=true
+        username: app
+        password: pass
