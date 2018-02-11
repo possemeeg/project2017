@@ -21,8 +21,8 @@ function connect() {
         stompClient.subscribe('/app/general.users', function (userupdate) {
             showUsers(JSON.parse(userupdate.body));
         });
-        stompClient.subscribe('/user/personal.greetings', function (greeting) {
-            showGreetings(JSON.parse(greeting.body));
+        stompClient.subscribe('/user/personal.directives', function (directiveupdate) {
+            showDirectives(JSON.parse(directiveupdate.body));
         });
     });
 }
@@ -36,23 +36,23 @@ function disconnect() {
 }
 
 function sendName() {
-    sendMessage($("#name").val(), $("#to").val())
+    sendDirective($("#name").val(), $("#to").val())
 }
 
 
-function showGreetings(messages) {
-    for (var i = 0; i < messages.length; i++) {
-        showGreeting(messages[i]);
+function showDirectives(directives) {
+    for (var i = 0; i < directives.length; i++) {
+        showDirective(directives[i]);
     }
 }
 
-function showGreeting(message) {
+function showDirective(directive) {
     $("<tr>"
-        + "<td>" + message.id + "</td>"
-        + "<td>" + message.message + "</td>"
-        + "<td>" + message.user + "</td>"
+        + "<td>" + directive.id + "</td>"
+        + "<td>" + directive.textContent + "</td>"
+        + "<td>" + directive.sender + "</td>"
         + "<td>" + "" + "</td>"
-        + "<td><button class=\"btn btn-default\" onclick=\"sendMessage('ack', '" + message.user + "')\">Respond</button></td>"
+        + "<td><button class=\"btn btn-default\" onclick=\"sendDirective('ack', '" + directive.sender + "')\">Respond</button></td>"
         + "</tr>").prependTo("#greetings");
 }
 
@@ -73,8 +73,8 @@ function showUsers(userchanges) {
     }
 }
 
-function sendMessage(message, to) {
-    stompClient.send("/app/hello", {}, JSON.stringify({'message': message, 'recipient': to}));
+function sendDirective(textContent, to) {
+    stompClient.send("/app/senddirective", {}, JSON.stringify({'textContent': textContent, 'recipient': to}));
 }
 
 $(function () {

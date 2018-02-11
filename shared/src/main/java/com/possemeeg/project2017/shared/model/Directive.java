@@ -10,45 +10,45 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class Message implements DataSerializable {
+public class Directive implements DataSerializable {
 
     private long id;
-    private String message;
+    private String textContent;
     private String sender;
     private List<String> recipients;
 
-    public Message() {
+    public Directive() {
     }
-    private Message(long id, String message, String sender, List<String> recipients) {
+    private Directive(long id, String textContent, String sender, List<String> recipients) {
         this.id = id;
-        this.message = message;
+        this.textContent = textContent;
         this.sender = sender;
         this.recipients = recipients;
     }
-    public static Message forUsers(long id, String message, String sender, List<String> recipients) {
-        Preconditions.checkNotNull(message);
+    public static Directive forUsers(long id, String textContent, String sender, List<String> recipients) {
+        Preconditions.checkNotNull(textContent);
         Preconditions.checkNotNull(sender);
         Preconditions.checkNotNull(recipients);
         Preconditions.checkArgument(!recipients.isEmpty());
-        return new Message(id, message, sender, ImmutableList.copyOf(recipients));
+        return new Directive(id, textContent, sender, ImmutableList.copyOf(recipients));
     }
-    public static Message forUser(long id, String message, String sender, String recipient) {
-        Preconditions.checkNotNull(message);
+    public static Directive forUser(long id, String textContent, String sender, String recipient) {
+        Preconditions.checkNotNull(textContent);
         Preconditions.checkNotNull(sender);
         Preconditions.checkNotNull(recipient);
-        return new Message(id, message, sender, ImmutableList.of(recipient));
+        return new Directive(id, textContent, sender, ImmutableList.of(recipient));
     }
-    public static Message forAll(long id, String message, String sender) {
-        Preconditions.checkNotNull(message);
+    public static Directive forAll(long id, String textContent, String sender) {
+        Preconditions.checkNotNull(textContent);
         Preconditions.checkNotNull(sender);
-        return new Message(id, message, sender, Collections.<String>emptyList());
+        return new Directive(id, textContent, sender, Collections.<String>emptyList());
     }
 
     public long getId() {
         return id;
     }
-    public String getMessage() {
-        return message;
+    public String getTextContent() {
+        return textContent;
     }
     public String getSender() {
         return sender;
@@ -66,7 +66,7 @@ public class Message implements DataSerializable {
     @Override
     public void writeData(ObjectDataOutput out) throws IOException {
         out.writeLong(id);
-        out.writeUTF(message);
+        out.writeUTF(textContent);
         out.writeUTF(sender);
         out.writeUTFArray(recipients.toArray(new String[recipients.size()]));
     }
@@ -74,7 +74,7 @@ public class Message implements DataSerializable {
     @Override
     public void readData(ObjectDataInput in) throws IOException {
         id = in.readLong();
-        message = in.readUTF();
+        textContent = in.readUTF();
         sender = in.readUTF();
         recipients = ImmutableList.copyOf(in.readUTFArray());
     }

@@ -7,37 +7,40 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "broadcast")
-public class BroadcastEntity {
+@Table(name = "localuser_directive")
+public class LocalUserDirectiveEntity {
     @Id
     @Column(name="id")
     private Long id;
     @JoinColumn(name = "id",referencedColumnName = "id")
     @OneToOne(optional=false, cascade= CascadeType.ALL)
     private DirectiveEntity directiveEntity;
+    @Column(name="localuser_username")
+    private String username;
 
-    public BroadcastEntity() {
+    public LocalUserDirectiveEntity() {
     }
 
-    public BroadcastEntity(DirectiveEntity directiveEntity) {
+    public LocalUserDirectiveEntity(DirectiveEntity directiveEntity, String username) {
         this.id = directiveEntity.getId();
         this.directiveEntity = directiveEntity;
+        this.username = username;
     }
 
-    public static BroadcastEntity valueOf(DirectiveEntity directive) {
-        return new BroadcastEntity(directive);
+    public static LocalUserDirectiveEntity valueOf(DirectiveEntity directiveEntity, String username) {
+        return new LocalUserDirectiveEntity(directiveEntity, username);
     }
-    public static BroadcastEntity valueOf(Directive directive) {
-        return valueOf(DirectiveEntity.valueOf(directive));
+    public static LocalUserDirectiveEntity valueOf(Directive directive, String username) {
+        return new LocalUserDirectiveEntity(DirectiveEntity.valueOf(directive), username);
     }
+
     public Directive toDirective() {
-        return directiveEntity.toDirective();
+        return directiveEntity.toDirectiveForUser(username);
     }
     public long getId() {
         return id;

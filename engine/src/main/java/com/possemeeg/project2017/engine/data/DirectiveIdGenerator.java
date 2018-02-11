@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.Iterator;
 
 @Component
-public class MessageIdGenerator {
+public class DirectiveIdGenerator {
     private final IAtomicLong nextId;
 
     @Autowired
-    public MessageIdGenerator(HazelcastInstance hazelcastInstance) {
+    public DirectiveIdGenerator(HazelcastInstance hazelcastInstance) {
         this.nextId = hazelcastInstance.getAtomicLong(Names.MESSAGE_ID_GENERATOR);
     }
 

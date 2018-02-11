@@ -2,11 +2,11 @@ package com.possemeeg.project2017.engine.haz;
 
 import com.hazelcast.core.MapStore;
 import com.possemeeg.project2017.engine.data.BroadcastRepository;
-import com.possemeeg.project2017.engine.data.MessageIdGenerator;
-import com.possemeeg.project2017.engine.data.MessageRepository;
+import com.possemeeg.project2017.engine.data.DirectiveIdGenerator;
+import com.possemeeg.project2017.engine.data.DirectiveRepository;
 import com.possemeeg.project2017.engine.model.BroadcastEntity;
-import com.possemeeg.project2017.engine.model.MessageEntity;
-import com.possemeeg.project2017.shared.model.Message;
+import com.possemeeg.project2017.engine.model.DirectiveEntity;
+import com.possemeeg.project2017.shared.model.Directive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,54 +19,54 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Component
-public class BroadcastStore implements MapStore<Long,Message> {
+public class BroadcastStore implements MapStore<Long,Directive> {
     private final static Logger LOGGER = LoggerFactory.getLogger(BroadcastStore.class);
     private final BroadcastRepository broadcastRepository;
-    private final MessageIdGenerator messageIdGenerator;
+    private final DirectiveIdGenerator directiveIdGenerator;
 
     @Autowired 
-    public BroadcastStore(BroadcastRepository broadcastRepository, MessageIdGenerator messageIdGenerator) {
+    public BroadcastStore(BroadcastRepository broadcastRepository, DirectiveIdGenerator directiveIdGenerator) {
         this.broadcastRepository = broadcastRepository;
-        this.messageIdGenerator = messageIdGenerator;
+        this.directiveIdGenerator = directiveIdGenerator;
     }
 
     @Override
-    public void store(Long aLong, Message message) {
-        LOGGER.info("storing broadcast message {}", aLong);
-        broadcastRepository.save(BroadcastEntity.valueOf(message));
+    public void store(Long aLong, Directive directive) {
+        LOGGER.info("storing broadcast directive {}", aLong);
+        broadcastRepository.save(BroadcastEntity.valueOf(directive));
     }
 
     @Override
-    public void storeAll(Map<Long, Message> map) {
-        LOGGER.info("storing {} broadcast messages", map.size());
+    public void storeAll(Map<Long, Directive> map) {
+        LOGGER.info("storing {} broadcast directives", map.size());
         broadcastRepository.saveAll(map.values().stream().map(BroadcastEntity::valueOf).collect(Collectors.toList()));
     }
 
     @Override
-    public void delete(Long messageId) {
-        LOGGER.info("Deleting {}", messageId);
-        broadcastRepository.deleteById(messageId);
+    public void delete(Long directiveId) {
+        LOGGER.info("Deleting {}", directiveId);
+        broadcastRepository.deleteById(directiveId);
     }
 
     @Override
     public void deleteAll(Collection<Long> collection) {
-        LOGGER.info("Deleting {} messages", collection.size());
-        for (Long messageId : collection) {
-            delete(messageId);
+        LOGGER.info("Deleting {} directives", collection.size());
+        for (Long directiveId : collection) {
+            delete(directiveId);
         }
     }
 
     @Override
-    public Message load(Long messageId) {
-        LOGGER.info("Loading {}", messageId);
-        return broadcastRepository.findById(messageId).map(BroadcastEntity::toMessage).orElse(null);
+    public Directive load(Long directiveId) {
+        LOGGER.info("Loading {}", directiveId);
+        return broadcastRepository.findById(directiveId).map(BroadcastEntity::toDirective).orElse(null);
     }
 
     @Override
-    public Map<Long, Message> loadAll(Collection<Long> collection) {
-        LOGGER.info("Loading {} messages", collection.size());
+    public Map<Long, Directive> loadAll(Collection<Long> collection) {
+        LOGGER.info("Loading {} directives", collection.size());
         return StreamSupport.stream(broadcastRepository.findAllById(collection).spliterator(), true)
-            .collect(Collectors.toMap(BroadcastEntity::getId, BroadcastEntity::toMessage));
+            .collect(Collectors.toMap(BroadcastEntity::getId, BroadcastEntity::toDirective));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class BroadcastStore implements MapStore<Long,Message> {
         LOGGER.info("load all keys");
         Iterable<Long> keys = StreamSupport.stream(broadcastRepository.findAll().spliterator(), true)
             .map(BroadcastEntity::getId).collect(Collectors.toList());
-        messageIdGenerator.setAbove(keys);
+        directiveIdGenerator.setAbove(keys);
         return keys;
     }
 }

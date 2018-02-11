@@ -5,26 +5,27 @@ CREATE TABLE localuser (
   PRIMARY KEY (username)
 );
 
-CREATE TABLE message (
+CREATE TABLE directive (
   id BIGINT NOT NULL,
-  message VARCHAR(256),
+  text_content VARCHAR(256),
   sender VARCHAR(256),
   PRIMARY KEY (id)
 );
 
 CREATE TABLE broadcast (
-  message_id BIGINT NOT NULL,
-  PRIMARY KEY (message_id),
-  FOREIGN KEY (message_id)
-     REFERENCES message(id)
+  id BIGINT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (id)
+     REFERENCES directive(id)
      ON DELETE CASCADE
 );
 
-CREATE TABLE localuser_message (
-  message_id BIGINT NOT NULL,
+CREATE TABLE localuser_directive (
+  id BIGINT NOT NULL,
   localuser_username VARCHAR(256) NOT NULL,
-  FOREIGN KEY (message_id)
-     REFERENCES message(id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (id)
+     REFERENCES directive(id)
      ON DELETE CASCADE,
   FOREIGN KEY (localuser_username)
      REFERENCES localuser(username)

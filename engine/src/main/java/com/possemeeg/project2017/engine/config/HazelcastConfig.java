@@ -5,11 +5,11 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
-import com.possemeeg.project2017.engine.data.MessageRepository;
+import com.possemeeg.project2017.engine.data.DirectiveRepository;
 import com.possemeeg.project2017.engine.haz.BroadcastStore;
-import com.possemeeg.project2017.engine.haz.MessageStore;
+import com.possemeeg.project2017.engine.haz.DirectiveStore;
 import com.possemeeg.project2017.engine.haz.UserStore;
-import com.possemeeg.project2017.shared.model.Message;
+import com.possemeeg.project2017.shared.model.Directive;
 import com.possemeeg.project2017.shared.model.User;
 import com.possemeeg.project2017.shared.reference.Names;
 import org.springframework.boot.autoconfigure.hazelcast.HazelcastProperties;
@@ -52,11 +52,11 @@ public class HazelcastConfig {
           .setWriteDelaySeconds(10)
           .setWriteBatchSize(1000)
           .setWriteCoalescing(true)
-          .setFactoryImplementation((MapStoreFactory<Long, Message>) (mapName, properties) -> {
+          .setFactoryImplementation((MapStoreFactory<Long, Directive>) (mapName, properties) -> {
               if (Names.BROADCAST_MESSAGE_MAP.equals(mapName)) {
                   return applicationContext.getBean(BroadcastStore.class);
               } else {
-                  MessageStore store = applicationContext.getBean(MessageStore.class);
+                  DirectiveStore store = applicationContext.getBean(DirectiveStore.class);
                   store.setUser(Names.userFromMapName(mapName));
                   return store;
               }
